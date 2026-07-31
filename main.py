@@ -3,7 +3,7 @@ def main():
     application = pyqt.QApplication([])
     window = Logic()
     window.show()
-    window.setWindowTitle("Test 10")
+    window.setWindowTitle("Final Project")
     application.exec()
 
 if __name__ == '__main__':
