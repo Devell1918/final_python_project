@@ -8,3 +8,5 @@ For your use, delete this and drag in the document with the same name in the fre
 The program reaches back 7 days for weekly averages and 30 for monthly averages
 
 Phone time is displayed in total minues
+
+You will need to install pandas library
