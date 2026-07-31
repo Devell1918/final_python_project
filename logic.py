@@ -23,20 +23,26 @@ class Logic(pyqt.QMainWindow, gui.Ui_MainWindow):
         """
         This method checks the data and then stores it into a csv
         """
+
+        data_frame = pd.read_csv("personal_stats_data.csv", parse_dates=["Date"])
         try:
-            #get date and phone time
+            #get date and validate date
             qt_date = self.dateEdit.date()
             python_date = qt_date.toPyDate()
+
+            if python_date < date(2026, 1, 1) or python_date > date.today():
+                raise Exception("invalid date")
+            if (data_frame["Date"].dt.date == python_date).any():
+                raise Exception("invalid date (duplicate)")
+        except Exception as e:
+            self.label_message.setText("Enter valid date")
+            return
+        try:
+            #get and validate phone time
             phone_hours = int(self.input_phone_hours.text())
             phone_minutes = int(self.input_phone_minutes.text())
             total_phone_minutes = phone_minutes + (phone_hours * 60)
-            #TODO seperate date and time try blocks
-            #check input
-            data_frame = pd.read_csv("personal_stats_data.csv", parse_dates=["Date"])
-            if (data_frame["Date"].dt.date == python_date).any():
-                raise Exception("invalid date (duplicate)")
-            if python_date < date(2026, 1, 1) or python_date > date.today():
-                raise Exception("invalid date")
+
             if phone_hours < 0 or phone_hours > 23:
                 raise Exception("invalid phone hours")
             if phone_minutes < 0 or phone_minutes >59:
@@ -171,14 +177,12 @@ class Logic(pyqt.QMainWindow, gui.Ui_MainWindow):
         """
         takes values and writes them to a csv file
         """
+
+        #data_frame updates existing, new_data_frame adds the new data
         new_data_frame = pd.DataFrame([{"Date": date, "Phone": 0, "Caffeine": caffeine_value, "Workout": workout_value, "Read": read_value, "GameDev": gamedev_value, "Nap": nap_value, "Wellbeing": wellbeing_value}])
         data_frame = pd.read_csv("personal_stats_data.csv", parse_dates=["Date"])
-
-
         data_frame.at[data_frame.index[-1], 'Phone'] = total_phone_minutes
-
         data_frame.to_csv("personal_stats_data.csv", mode='w', header=True, index=False)
-
         new_data_frame.to_csv("personal_stats_data.csv", mode='a', header=False, index=False)
 
         # code used befor switching to pandas library for easier csv manipulation
@@ -192,7 +196,7 @@ class Logic(pyqt.QMainWindow, gui.Ui_MainWindow):
         #             print (row)
                 
         self.label_message.setText("Submission Entered")
-        data_frame
+
         #refresh averages
         data_frame = pd.read_csv("personal_stats_data.csv", parse_dates=["Date"])
         self.calculate_and_set_averages(self.current_stat, data_frame)
@@ -204,7 +208,7 @@ class Logic(pyqt.QMainWindow, gui.Ui_MainWindow):
             :param column: the column to be averaged
             :param data_frame: the csv data
             """
-
+            #phone has offset as we enter yesterdays numbers
             if column == "Phone":
                 week_av = data_frame[column].iloc[-7:-1].mean()
                 rounded_week_av = f'{week_av: .2f}'

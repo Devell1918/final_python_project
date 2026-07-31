@@ -966,7 +966,7 @@
      <string/>
     </property>
    </widget>
-   <widget class="QLabel" name="label_start_ouput">
+   <widget class="QLabel" name="label_start_output">
     <property name="geometry">
      <rect>
       <x>730</x>
